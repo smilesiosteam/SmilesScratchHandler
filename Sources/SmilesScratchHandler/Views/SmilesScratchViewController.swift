@@ -10,8 +10,7 @@ import SmilesUtilities
 import SmilesLanguageManager
 
 public protocol ScratchAndWinDelegate: AnyObject {
-    func viewVoucherPressed()
-    func viewSubscriptionPressed()
+    func viewVoucherPressed(voucherCode: String)
 }
 
 public class SmilesScratchViewController: UIViewController {
@@ -38,12 +37,15 @@ public class SmilesScratchViewController: UIViewController {
     // MARK: - ACTIONS -
     @IBAction func viewVoucherPressed(_ sender: Any) {
         
+        dismiss(animated: true)
         if let voucher = scratchObj.voucherCode, !voucher.isEmpty {
-            delegate?.viewVoucherPressed()
-        } else {
-            delegate?.viewSubscriptionPressed()
+            delegate?.viewVoucherPressed(voucherCode: voucher)
         }
         
+    }
+    
+    @IBAction func closePressed(_ sender: Any) {
+        dismiss(animated: true)
     }
     
     // MARK: - METHODS -
@@ -65,7 +67,7 @@ public class SmilesScratchViewController: UIViewController {
         
         titleLabel.text = scratchObj.themeResources?.title
         subTitleLabel.text = scratchObj.themeResources?.subTitle
-        if let imageUrl = URL(string: scratchObj.themeResources?.scartchImageURL ?? ""), let scratchImage = UIImage(url: imageUrl) {
+        if let imageUrl = URL(string: scratchObj.themeResources?.scratchImageURL ?? ""), let scratchImage = UIImage(url: imageUrl) {
             scratchView.scratchImage = scratchImage
         }
         let giftImageUrl = scratchObj.themeResources?.giftImageURL ?? scratchObj.themeResources?.failureImageURL ?? ""
@@ -86,15 +88,15 @@ extension SmilesScratchViewController: ScratchDelegate {
         if value > 50 {
             scratchStackView.isHidden = true
             if let voucher = scratchObj.voucherCode, !voucher.isEmpty {
-                congratulationsView.isHidden = false
                 greetingsLabel.text = scratchObj.themeResources?.greetingText
                 voucherLabel.text = scratchObj.fullTitle
                 viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "View my vouchers"), for: .normal)
             } else {
                 greetingsLabel.text = scratchObj.themeResources?.failureTitle
                 voucherLabel.text = scratchObj.themeResources?.failureMessage
-                viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "View Subscription"), for: .normal)
+                viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "CloseTitle"), for: .normal)
             }
+            congratulationsView.isHidden = false
         }
     }
     

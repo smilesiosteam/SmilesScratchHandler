@@ -83,10 +83,7 @@ class SmilesScratchCardOverlay: UIView {
     
     private func setupScratchImage() {
         
-        guard let image = scratchImage
-        else {
-            fatalError("PLEASE ADD ADD SCRATCH IMAGE")
-        }
+        guard let image = scratchImage else { return }
         
         overlayImage = image
         overlayImage.draw(in: self.frame)

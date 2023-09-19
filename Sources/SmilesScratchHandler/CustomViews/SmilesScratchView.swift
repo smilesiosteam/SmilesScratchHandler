@@ -31,9 +31,9 @@ class SmilesScratchView: UIView {
     // MARK: - LIFECYCLE METHODS -
     override func draw(_ rect: CGRect) {
         super.draw(rect)
-        backgroundImageView.contentMode = .scaleAspectFill
-        self.addSubview(scratchCard)
+        backgroundImageView.contentMode = .scaleAspectFit
         self.addSubview(backgroundImageView)
+        self.addSubview(scratchCard)
     }
     
     override func layoutSubviews() {
