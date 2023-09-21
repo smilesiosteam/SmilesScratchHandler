@@ -8,12 +8,8 @@
 import Foundation
 
 public class ScratchAndWinResponse: Codable {
-    public let scratchAndWin: ScratchAndWin?
-}
-
-// MARK: - ScratchAndWin
-public class ScratchAndWin: Codable {
     public let voucherCode, offerTitle, fullTitle: String?
+    public let showPopup, voucherWon: Bool?
     public let themeResources: ThemeResources?
 }
 

@@ -17,7 +17,7 @@ public class ScratchAndWinViewModel: NSObject {
     private var cancellables = Set<AnyCancellable>()
     
     public enum Input {
-        case getScratchAndWinData
+        case getScratchAndWinData(orderId: String, isVoucherScratched: Bool)
     }
     
     public enum Output {
@@ -34,16 +34,16 @@ extension ScratchAndWinViewModel {
         output = PassthroughSubject<Output, Never>()
         input.sink { [weak self] event in
             switch event {
-            case .getScratchAndWinData:
-                self?.getScratchAndWinData()
+            case .getScratchAndWinData(let orderId, let isVoucherScratched):
+                self?.getScratchAndWinData(orderId: orderId, isVoucherScratched: isVoucherScratched)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
     }
     
-    private func getScratchAndWinData() {
+    private func getScratchAndWinData(orderId: String, isVoucherScratched: Bool) {
         
-        let scratchRequest = ScratchAndWinRequest()
+        let scratchRequest = ScratchAndWinRequest(orderId: orderId, scratchForVoucher: isVoucherScratched)
 
         let service = ScratchAndWinRepository(
             networkRequest: NetworkingLayerRequestable(requestTimeOut: 60),

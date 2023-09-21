@@ -32,6 +32,7 @@ class SmilesScratchView: UIView {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         backgroundImageView.contentMode = .scaleAspectFit
+        backgroundImageView.backgroundColor = .clear
         self.addSubview(backgroundImageView)
         self.addSubview(scratchCard)
     }

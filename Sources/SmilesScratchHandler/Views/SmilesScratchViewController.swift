@@ -8,6 +8,8 @@
 import UIKit
 import SmilesUtilities
 import SmilesLanguageManager
+import Combine
+import SmilesLoader
 
 public protocol ScratchAndWinDelegate: AnyObject {
     func viewVoucherPressed(voucherCode: String)
@@ -31,8 +33,15 @@ public class SmilesScratchViewController: UIViewController {
     
     
     // MARK: - PROPERTIES -
-    private let scratchObj: ScratchAndWin
+    private var scratchObj: ScratchAndWinResponse
+    private let orderId: String
     public weak var delegate: ScratchAndWinDelegate?
+    private lazy var viewModel: ScratchAndWinViewModel = {
+        return ScratchAndWinViewModel()
+    }()
+    private var input: PassthroughSubject<ScratchAndWinViewModel.Input, Never> = .init()
+    private var cancellables = Set<AnyCancellable>()
+    private var isScratchServiceInProgress = false
     
     // MARK: - ACTIONS -
     @IBAction func viewVoucherPressed(_ sender: Any) {
@@ -49,7 +58,8 @@ public class SmilesScratchViewController: UIViewController {
     }
     
     // MARK: - METHODS -
-    public init(scratchObj: ScratchAndWin) {
+    public init(scratchObj: ScratchAndWinResponse, orderId: String) {
+        self.orderId = orderId
         self.scratchObj = scratchObj
         super.init(nibName: "SmilesScratchViewController", bundle: .module)
     }
@@ -61,42 +71,75 @@ public class SmilesScratchViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+        bind(to: viewModel)
     }
     
     private func setupViews() {
         
         titleLabel.text = scratchObj.themeResources?.title
         subTitleLabel.text = scratchObj.themeResources?.subTitle
-        if let imageUrl = URL(string: scratchObj.themeResources?.scratchImageURL ?? ""), let scratchImage = UIImage(url: imageUrl) {
+        if let imageUrl = URL(string: scratchObj.themeResources?.scratchImageURL ?? ""), let scratchImageData = UIImage(url: imageUrl)?.jpegData(compressionQuality: 1), let scratchImage = UIImage(data: scratchImageData) {
             scratchView.scratchImage = scratchImage
-        }
-        let giftImageUrl = scratchObj.themeResources?.giftImageURL ?? scratchObj.themeResources?.failureImageURL ?? ""
-        giftImageView.setImageWithUrlString(giftImageUrl) { [weak self] image in
-            self?.scratchView.backgroundImage = image
         }
         messageLabel.text = scratchObj.themeResources?.message
         instructionsLabel.text = scratchObj.themeResources?.instruction
         scratchView.scratchDelegate = self
         
     }
+    
+    private func updateUI() {
+        
+        let giftImageUrl: String?
+        scratchStackView.isHidden = true
+        if scratchObj.voucherWon ?? false {
+            greetingsLabel.text = scratchObj.themeResources?.greetingText
+            voucherLabel.text = scratchObj.fullTitle
+            viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "View Voucher"), for: .normal)
+            giftImageUrl = scratchObj.themeResources?.giftImageURL
+        } else {
+            greetingsLabel.text = scratchObj.themeResources?.failureTitle
+            voucherLabel.text = scratchObj.themeResources?.failureMessage
+            viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "Okay"), for: .normal)
+            giftImageUrl = scratchObj.themeResources?.failureImageURL
+        }
+        giftImageView.setImageWithUrlString(giftImageUrl ?? "") { [weak self] image in
+            SmilesLoader.dismiss()
+            self?.scratchView.backgroundImage = image
+        }
+        congratulationsView.isHidden = false
+        
+    }
 
 }
 
+// MARK: - VIEWMODEL BINDING -
+extension SmilesScratchViewController {
+    
+    func bind(to viewModel: ScratchAndWinViewModel) {
+        input = PassthroughSubject<ScratchAndWinViewModel.Input, Never>()
+        let output = viewModel.transform(input: input.eraseToAnyPublisher())
+        output
+            .sink { [weak self] event in
+                switch event {
+                case .fetchScratchAndWinDidSucceed(let response):
+                    self?.scratchObj = response
+                    self?.updateUI()
+                case .fetchScratchAndWinDidFail(_):
+                    self?.updateUI()
+                }
+            }.store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - SCRATCH VIEW DELEGATE -
 extension SmilesScratchViewController: ScratchDelegate {
     
     func scratch(percentage value: Int) {
-        if value > 50 {
-            scratchStackView.isHidden = true
-            if let voucher = scratchObj.voucherCode, !voucher.isEmpty {
-                greetingsLabel.text = scratchObj.themeResources?.greetingText
-                voucherLabel.text = scratchObj.fullTitle
-                viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "View my vouchers"), for: .normal)
-            } else {
-                greetingsLabel.text = scratchObj.themeResources?.failureTitle
-                voucherLabel.text = scratchObj.themeResources?.failureMessage
-                viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "CloseTitle"), for: .normal)
-            }
-            congratulationsView.isHidden = false
+        if value > 50 && !isScratchServiceInProgress {
+            SmilesLoader.show()
+            input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true))
+            isScratchServiceInProgress = true
         }
     }
     
