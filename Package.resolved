@@ -23,8 +23,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smilesiosteam/NetworkingLayer.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "ca052a51c8ecfcff997f86d50fe95ded51565d99"
+        "branch" : "shared_Models",
+        "revision" : "9d176c72f3bdb59add7a9d628bfdd9e2c3563551"
+      }
+    },
+    {
+      "identity" : "nvactivityindicatorview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ninjaprox/NVActivityIndicatorView.git",
+      "state" : {
+        "revision" : "bcb52371f2259254bac6690f92bb474a61768c47",
+        "version" : "5.1.1"
       }
     },
     {
@@ -50,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smilesiosteam/SmilesBaseMainRequest.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "306ab0bb0ba9433427dc91cf35ac24bf31d23ed7"
+        "branch" : "shared_models",
+        "revision" : "dbbbe487f66eb13e5a59e6a6b6b5537fe7dc878e"
       }
     },
     {
@@ -73,6 +82,24 @@
       }
     },
     {
+      "identity" : "smilesloader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smilesiosteam/SmilesLoader.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9f8681ad99ae15d022d691f94617e18e156f1ab8"
+      }
+    },
+    {
+      "identity" : "smilessharedmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/smilesiosteam/SmilesSharedModels.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "dbdb39fa160f3047d4c9b06b603e9936efc1b363"
+      }
+    },
+    {
       "identity" : "smilesstorage",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smilesiosteam/SmilesStorage.git",
@@ -86,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/smilesiosteam/SmilesUtilities.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "351e622301f8377933fdb8eed43040dffbc3fde8"
+        "branch" : "shared_Models",
+        "revision" : "476eebf3f636d33d70b62afac4fab6ff8746c134"
       }
     }
   ],

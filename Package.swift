@@ -17,11 +17,11 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/smilesiosteam/SmilesUtilities.git", branch: "main"),
+        .package(url: "https://github.com/smilesiosteam/SmilesUtilities.git", branch: "shared_Models"),
         .package(url: "https://github.com/smilesiosteam/SmilesFontsManager.git", branch: "main"),
         .package(url: "https://github.com/smilesiosteam/SmilesLanguageManager.git", branch: "main"),
-        .package(url: "https://github.com/smilesiosteam/SmilesBaseMainRequest.git", branch: "main"),
-        .package(url: "https://github.com/smilesiosteam/NetworkingLayer.git", branch: "main"),
+        .package(url: "https://github.com/smilesiosteam/SmilesBaseMainRequest.git", branch: "shared_models"),
+        .package(url: "https://github.com/smilesiosteam/NetworkingLayer.git", branch: "shared_Models"),
         .package(url: "https://github.com/smilesiosteam/SmilesLoader.git", branch: "main")
     ],
     targets: [
