@@ -12,10 +12,12 @@ class ScratchAndWinRequest: SmilesBaseMainRequest {
     
     var orderId: String
     var scratchForVoucher: Bool
+    var paymentType: String?
     
-    init(orderId: String, scratchForVoucher: Bool) {
+    init(orderId: String, scratchForVoucher: Bool, paymentType: String? = nil) {
         self.orderId = orderId
         self.scratchForVoucher = scratchForVoucher
+        self.paymentType = paymentType
         super.init()
     }
     
@@ -24,7 +26,7 @@ class ScratchAndWinRequest: SmilesBaseMainRequest {
     }
     
     enum CodingKeys: String, CodingKey {
-        case operationName, orderId, scratchForVoucher
+        case operationName, orderId, scratchForVoucher, paymentType
     }
     
     public override func encode(to encoder: Encoder) throws {
@@ -32,6 +34,7 @@ class ScratchAndWinRequest: SmilesBaseMainRequest {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(orderId, forKey: .orderId)
         try container.encodeIfPresent(scratchForVoucher, forKey: .scratchForVoucher)
+        try container.encodeIfPresent(paymentType, forKey: .paymentType)
     }
     
 }

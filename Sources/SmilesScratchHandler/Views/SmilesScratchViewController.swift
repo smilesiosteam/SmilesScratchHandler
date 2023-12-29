@@ -13,6 +13,7 @@ import SmilesLoader
 
 public protocol ScratchAndWinDelegate: AnyObject {
     func viewVoucherPressed(voucherCode: String)
+    func proceedToOfferDetails(offerId: String, offerType: String)
 }
 
 public class SmilesScratchViewController: UIViewController {
@@ -49,6 +50,8 @@ public class SmilesScratchViewController: UIViewController {
         dismiss(animated: true)
         if let voucher = scratchObj.voucherCode, !voucher.isEmpty {
             delegate?.viewVoucherPressed(voucherCode: voucher)
+        } else if let offerId = scratchObj.offerId, let offerType = scratchObj.offerType {
+            delegate?.proceedToOfferDetails(offerId: offerId, offerType: offerType)
         }
         
     }
@@ -94,7 +97,7 @@ public class SmilesScratchViewController: UIViewController {
         if scratchObj.voucherWon ?? false {
             greetingsLabel.text = scratchObj.themeResources?.greetingText
             voucherLabel.text = scratchObj.fullTitle
-            viewVoucherButton.setTitle(SmilesLanguageManager.shared.getLocalizedString(for: "View Voucher"), for: .normal)
+            viewVoucherButton.setTitle(scratchObj.voucherCode == nil ? scratchObj.themeResources?.paidVoucherButtonText : scratchObj.themeResources?.freeVoucherButtonText, for: .normal)
             giftImageUrl = scratchObj.themeResources?.giftImageURL
         } else {
             greetingsLabel.text = scratchObj.themeResources?.failureTitle
@@ -123,8 +126,10 @@ extension SmilesScratchViewController {
                 switch event {
                 case .fetchScratchAndWinDidSucceed(let response):
                     self?.scratchObj = response
+                    self?.isScratchServiceInProgress = false
                     self?.updateUI()
                 case .fetchScratchAndWinDidFail(_):
+                    self?.isScratchServiceInProgress = false
                     self?.updateUI()
                 }
             }.store(in: &cancellables)
@@ -138,7 +143,7 @@ extension SmilesScratchViewController: ScratchDelegate {
     func scratch(percentage value: Int) {
         if value > 50 && !isScratchServiceInProgress {
             SmilesLoader.show()
-            input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true))
+            input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true, paymentType: scratchObj.paymentType))
             isScratchServiceInProgress = true
         }
     }
