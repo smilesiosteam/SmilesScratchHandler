@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ScratchDelegate {
+protocol ScratchDelegate: AnyObject {
     func scratch(percentage value:Int)
 }
 
@@ -18,7 +18,7 @@ class SmilesScratchCardOverlay: UIView {
     private var context:CGContext!
     private var co_ordinates = [(startPoint:CGPoint,endPoint:CGPoint)]()
     private var swiped = false
-    var scratchDelegate: ScratchDelegate?
+    weak var scratchDelegate: ScratchDelegate?
     var scratchImage: UIImage? {
         didSet {
             setupScratchImage()
@@ -71,11 +71,8 @@ class SmilesScratchCardOverlay: UIView {
         
         //FIXME: MAKE ME STABLE
         if scratchPercentage < 95 {
-            
             scratchDelegate?.scratch(percentage: Int(scratchPercentage))
-            
         } else if scratchPercentage < 200  {
-            
             scratchDelegate?.scratch(percentage: 100)
         }
         

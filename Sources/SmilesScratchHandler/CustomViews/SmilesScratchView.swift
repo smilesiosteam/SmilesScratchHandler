@@ -22,7 +22,7 @@ class SmilesScratchView: UIView {
             scratchCard.scratchImage = scratchImage
         }
     }
-    var scratchDelegate: ScratchDelegate? {
+    weak var scratchDelegate: ScratchDelegate? {
         didSet {
             scratchCard.scratchDelegate = scratchDelegate
         }

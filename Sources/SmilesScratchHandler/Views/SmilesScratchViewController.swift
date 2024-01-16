@@ -42,7 +42,6 @@ public class SmilesScratchViewController: UIViewController {
     }()
     private var input: PassthroughSubject<ScratchAndWinViewModel.Input, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
-    private var isScratchServiceInProgress = false
     
     // MARK: - ACTIONS -
     @IBAction func viewVoucherPressed(_ sender: Any) {
@@ -126,10 +125,8 @@ extension SmilesScratchViewController {
                 switch event {
                 case .fetchScratchAndWinDidSucceed(let response):
                     self?.scratchObj = response
-                    self?.isScratchServiceInProgress = false
                     self?.updateUI()
                 case .fetchScratchAndWinDidFail(_):
-                    self?.isScratchServiceInProgress = false
                     self?.updateUI()
                 }
             }.store(in: &cancellables)
@@ -141,10 +138,10 @@ extension SmilesScratchViewController {
 extension SmilesScratchViewController: ScratchDelegate {
     
     func scratch(percentage value: Int) {
-        if value > 50 && !isScratchServiceInProgress {
+        if value > 50 {
+            scratchView.scratchDelegate = nil
             SmilesLoader.show()
             input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true, paymentType: scratchObj.paymentType))
-            isScratchServiceInProgress = true
         }
     }
     
