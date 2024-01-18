@@ -27,93 +27,60 @@ class SmilesScratchCardOverlay: UIView {
     private var overlayImage:UIImage!
     
     func reset() {
-        
         co_ordinates.removeAll()
-        min_x = 1000
-        max_x = 0
-        min_y = 1000
-        max_y = 0
         self.setNeedsDisplay()
-        
     }
-    
-    
-    private var min_x:Int = 1000
-    private var max_x:Int = 0
-    
-    private var min_y:Int = 1000
-    private var max_y:Int = 0
     
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         backgroundColor = .clear
-        calculateUserScratchArea()
         setupScratchImage()
     }
     
-    fileprivate func calculateUserScratchArea() {
+    func calculateUserScratchArea() {
+        let width = Int(bounds.width)
+        let height = Int(bounds.height)
         
+        // 1. Prepare a memory space where you write in RGBA data of the view
+        var pixelData: [UInt8] = Array<UInt8>(repeating: 0, count: width * height * 4)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         
-        // Area of rectange = Length * Width
+        // 2. Prepare a context with the RGB space you secured above
+        guard let context = CGContext(data: &pixelData, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 4 * width, space: colorSpace, bitmapInfo: bitmapInfo.rawValue) else { return }
         
-        let scratchCardArea =  self.bounds.width*self.bounds.height
-        
-        let maxLengthOfScratchSurface = (max_y - min_y)
-        let maxWidthOfScratchSurface = (max_x - min_x)
-        
-        let scratchedArea = maxWidthOfScratchSurface * maxLengthOfScratchSurface
-        
-        guard scratchedArea > 0 else {
-            return
+        // 3. Render the entire view into the context, thereby filling in the `pixelData` variable
+        self.layer.render(in: context)
+        let totalArea = width * height
+        var transparentCount: Double = 0
+        for x in 0 ..< width {
+            for y in 0 ..< height {
+                // 4. Get alpha component and see if it is zero.
+                let alpha = pixelData[(y * width + x) * 4 + 3]
+                if alpha == 0 {
+                    transparentCount += 1
+                }
+            }
         }
-        
-        let scratchPercentage = ( CGFloat(scratchedArea) / CGFloat(scratchCardArea)  ) * 100
-        
-        //FIXME: MAKE ME STABLE
-        if scratchPercentage < 95 {
-            scratchDelegate?.scratch(percentage: Int(scratchPercentage))
-        } else if scratchPercentage < 200  {
-            scratchDelegate?.scratch(percentage: 100)
-        }
+        let percentage = Double(transparentCount / Double(totalArea)) * 100
+        scratchDelegate?.scratch(percentage: Int(percentage))
         
     }
     
     private func setupScratchImage() {
         
         guard let image = scratchImage else { return }
-        
         overlayImage = image
         overlayImage.draw(in: self.frame)
-        
         context = UIGraphicsGetCurrentContext()
-        
-        
         for each in co_ordinates {
-            
             self.drawLineFrom(fromPoint:each.startPoint , toPoint: each.endPoint)
-            
         }
         
-    }
-    
-    fileprivate func storeStartCoordiante() {
-        let temp_x = Int(self.startPoint.x)
-        let temp_y = Int(self.startPoint.y)
-        
-        if temp_x<min_x {
-            min_x = temp_x
-        }
-        
-        if temp_y<min_y {
-            min_y = temp_y
-        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.startPoint = touches.first?.location(in: self)
-        
-        storeStartCoordiante()
-        
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -125,42 +92,15 @@ class SmilesScratchCardOverlay: UIView {
         
     }
     
-    fileprivate func storeEndCoordinate() {
-        let temp_x = Int(self.endPoint.x)
-        let temp_y = Int(self.endPoint.y)
-        
-        if temp_x>max_x {
-            max_x = temp_x
-        }
-        if temp_y>max_y {
-            max_y = temp_y
-        }
-        
-        if temp_x<min_x  {
-            min_x = temp_x
-        }
-        if temp_y<min_y {
-            min_y = temp_y
-        }
-    }
-    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         self.endPoint = touches.first?.location(in: self)
-        
-        guard  self.frame.contains(self.endPoint)
-        else {
-            return
-        }
-        
-        storeEndCoordinate()
-        
+        guard self.frame.contains(self.endPoint) else { return }
         swiped = true
         co_ordinates.append((self.startPoint,self.endPoint))
-        
         self.startPoint = endPoint
-        
         setNeedsDisplay()
+        calculateUserScratchArea()
         
     }
     
