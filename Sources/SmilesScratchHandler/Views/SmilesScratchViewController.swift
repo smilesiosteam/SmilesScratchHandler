@@ -96,7 +96,9 @@ public class SmilesScratchViewController: UIViewController {
         if scratchObj.voucherWon ?? false {
             greetingsLabel.text = scratchObj.themeResources?.greetingText
             voucherLabel.text = scratchObj.fullTitle
-            viewVoucherButton.setTitle(scratchObj.voucherCode == nil ? scratchObj.themeResources?.paidVoucherButtonText : scratchObj.themeResources?.freeVoucherButtonText, for: .normal)
+            let isPaidVoucher = scratchObj.voucherCode == nil
+            let freeVoucherTitle = scratchObj.themeResources?.freeVoucherButtonText ?? SmilesLanguageManager.shared.getLocalizedString(for: "View Voucher")
+            viewVoucherButton.setTitle(isPaidVoucher ? scratchObj.themeResources?.paidVoucherButtonText : freeVoucherTitle, for: .normal)
             giftImageUrl = scratchObj.themeResources?.giftImageURL
         } else {
             greetingsLabel.text = scratchObj.themeResources?.failureTitle
