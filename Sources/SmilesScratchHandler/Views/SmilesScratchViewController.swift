@@ -138,7 +138,8 @@ extension SmilesScratchViewController {
 extension SmilesScratchViewController: ScratchDelegate {
     
     func scratch(percentage value: Int) {
-        if value == 50 {
+        if value > 50 {
+            scratchView.isUserInteractionEnabled = false
             scratchView.scratchDelegate = nil
             SmilesLoader.show()
             input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true, paymentType: scratchObj.paymentType))
