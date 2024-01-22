@@ -92,6 +92,7 @@ public class SmilesScratchViewController: UIViewController {
     private func updateUI() {
         
         let giftImageUrl: String?
+        SmilesLoader.dismiss(from: scratchStackView)
         scratchStackView.isHidden = true
         if scratchObj.voucherWon ?? false {
             greetingsLabel.text = scratchObj.themeResources?.greetingText
@@ -107,7 +108,6 @@ public class SmilesScratchViewController: UIViewController {
             giftImageUrl = scratchObj.themeResources?.failureImageURL
         }
         giftImageView.setImageWithUrlString(giftImageUrl ?? "") { [weak self] image in
-            SmilesLoader.dismiss()
             self?.scratchView.backgroundImage = image
         }
         congratulationsView.isHidden = false
@@ -143,7 +143,7 @@ extension SmilesScratchViewController: ScratchDelegate {
         if value > 50 {
             scratchView.isUserInteractionEnabled = false
             scratchView.scratchDelegate = nil
-            SmilesLoader.show()
+            SmilesLoader.show(on: scratchStackView)
             input.send(.getScratchAndWinData(orderId: orderId, isVoucherScratched: true, paymentType: scratchObj.paymentType))
         }
     }
