@@ -22,7 +22,7 @@ public class ScratchAndWinViewModel: NSObject {
     
     public enum Output {
         case fetchScratchAndWinDidSucceed(response: ScratchAndWinResponse)
-        case fetchScratchAndWinDidFail(error: Error)
+        case fetchScratchAndWinDidFail(error: NetworkError)
     }
     
 }
